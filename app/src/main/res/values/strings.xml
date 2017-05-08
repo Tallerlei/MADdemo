@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MAD Demo</string>
+    <string name="title_overview">Overview</string>
+    <string name="title_Detailview">Detailview</string>
+    <string name="hello_text">Hello Android!</string>
+
+</resources>
