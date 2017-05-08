@@ -2,6 +2,7 @@ package com.example.tallerlei.maddemo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,12 +13,20 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static com.example.tallerlei.maddemo.DetailviewActivity.DATA_ITEM;
+
 public class OverviewActivity extends AppCompatActivity implements View.OnClickListener{
 
     protected static String logger = OverviewActivity.class.getSimpleName();
+
     private TextView helloText;
     private ViewGroup listView;
     private FloatingActionButton addItemButton;
+
+    private List<DataItem> items = Arrays.asList(new DataItem[]{new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"),new DataItem("vogel"), new DataItem("awesome")});
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,25 +48,51 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
         // 4. set listeners to allow user interaction
         helloText.setOnClickListener(this);
 
-        for (int i= 0; i < listView.getChildCount(); i++) {
-            View currentChild = listView.getChildAt(i);
-            if(currentChild instanceof TextView) {
-                currentChild.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        listItemSelected(v);
-                    }
-                });
-            }
-        }
+
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addNewItem();
             }
         });
+
+        readItemsAndFillListView();
     }
 
+    private void readItemsAndFillListView() {
+        for(DataItem item : items) {
+            addItemToListView(item);
+        }
+    }
+
+    private void addItemToListView(DataItem item) {
+        View listItemView = getLayoutInflater().inflate(R.layout.itemview_overview, null);
+        TextView itemNameView = (TextView) listItemView.findViewById(R.id.itemName);
+
+        listItemView.setTag(item);
+        itemNameView.setText(item.getName());
+
+        listItemView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                DataItem item = (DataItem) v.getTag();
+                showDetailviewForItem(item);
+            }
+        });
+        listView.addView(listItemView);
+
+    }
+
+    private void showDetailviewForItem(DataItem item) {
+        // Activity Instanz erstellt
+        Intent detailViewIntent = new Intent(this, DetailviewActivity.class);
+
+        // Parameter übergeben
+        detailViewIntent.putExtra(DATA_ITEM, item);
+
+        // Android öffnet detailviewActivity
+        startActivity(detailViewIntent);
+    }
 
     private void addNewItem() {
         Intent addNewItemIntent = new Intent(this, DetailviewActivity.class);
@@ -68,23 +103,9 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            String itemName = data.getStringExtra("itemName");
-            Toast.makeText(this, "got new iten name: " + itemName, Toast.LENGTH_SHORT).show();
+            DataItem item = (DataItem) data.getSerializableExtra(DATA_ITEM);
+            addItemToListView(item);
         }
-    }
-
-    private void listItemSelected(View v) {
-        // Toast.makeText(this, "selected: " + ((TextView)v).getText(), Toast.LENGTH_SHORT).show();
-        String itemName = ((TextView)v).getText().toString();
-
-        // Activity Instanz erstellt
-        Intent detailViewIntent = new Intent(this, DetailviewActivity.class);
-
-        // Parameter übergeben
-        detailViewIntent.putExtra("itemName", itemName);
-
-        // Android öffnet detailviewActivity
-        startActivity(detailViewIntent);
     }
 
     @Override
