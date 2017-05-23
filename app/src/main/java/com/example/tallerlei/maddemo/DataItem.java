@@ -33,4 +33,12 @@ public class DataItem implements Serializable{
     public void setDuedate(long duedate) {
         this.duedate = duedate;
     }
+
+    @Override
+    public String toString() {
+        return "DataItem{" +
+                "name='" + name + '\'' +
+                ", duedate=" + duedate +
+                '}';
+    }
 }

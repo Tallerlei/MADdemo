@@ -3,13 +3,16 @@ package com.example.tallerlei.maddemo;
 import android.app.Activity;
 import android.content.Intent;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,8 +28,13 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
     private TextView helloText;
     private ViewGroup listView;
     private FloatingActionButton addItemButton;
+    private ArrayAdapter<DataItem> listViewAdapter;
 
     private List<DataItem> items = Arrays.asList(new DataItem[]{new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"),new DataItem("vogel"), new DataItem("awesome")});
+
+    private class ItemViewHolder {
+        public TextView itemNameView;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +64,42 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+        // instantiate listview with adapter
+        listViewAdapter = new ArrayAdapter<DataItem>(this, R.layout.itemview_overview){
+            @NonNull
+            @Override
+            public View getView(int position, View itemView, ViewGroup parent) {
+
+                if(itemView != null) {
+                    Log.i(logger, "reusing existing itemView for element at position: " + position);
+                }
+                else {
+                    Log.i(logger, "creating new itemView for element at position: " + position);
+                    // create a new instance of list item view
+                    itemView = getLayoutInflater().inflate(R.layout.itemview_overview, null);
+                    // read out the text view for item name
+                    TextView itemNameView = (TextView)itemView.findViewById(R.id.itemName);
+                    // create a new instance of the view holder
+                    ItemViewHolder itemViewHolder = new ItemViewHolder();
+                    // set the itemNameView attribute on view holder to text view
+                    itemViewHolder.itemNameView = itemNameView;
+                    // set the view holder on the list item view
+                    itemView.setTag(itemViewHolder);
+                }
+
+                ItemViewHolder viewHolder = (ItemViewHolder)itemView.getTag();
+
+                DataItem item = getItem(position);
+//                Log.i(logger, "creating view for position " + position + " and item: " + item);
+
+                viewHolder.itemNameView.setText(item.getName());
+
+                return itemView;
+            }
+        };
+        ((ListView)listView).setAdapter(listViewAdapter);
+        listViewAdapter.setNotifyOnChange(true);
+
         readItemsAndFillListView();
     }
 
@@ -66,20 +110,24 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void addItemToListView(DataItem item) {
-        View listItemView = getLayoutInflater().inflate(R.layout.itemview_overview, null);
-        TextView itemNameView = (TextView) listItemView.findViewById(R.id.itemName);
 
-        listItemView.setTag(item);
-        itemNameView.setText(item.getName());
+        listViewAdapter.add(item);
 
-        listItemView.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                DataItem item = (DataItem) v.getTag();
-                showDetailviewForItem(item);
-            }
-        });
-        listView.addView(listItemView);
+
+//        View listItemView = getLayoutInflater().inflate(R.layout.itemview_overview, null);
+//        TextView itemNameView = (TextView) listItemView.findViewById(R.id.itemName);
+//
+//        listItemView.setTag(item);
+//        itemNameView.setText(item.getName());
+//
+//        listItemView.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                DataItem item = (DataItem) v.getTag();
+//                showDetailviewForItem(item);
+//            }
+//        });
+//        listView.addView(listItemView);
 
     }
 
