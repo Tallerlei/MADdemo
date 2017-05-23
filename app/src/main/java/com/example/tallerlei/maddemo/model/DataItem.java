@@ -1,4 +1,4 @@
-package com.example.tallerlei.maddemo;
+package com.example.tallerlei.maddemo.model;
 
 import java.io.Serializable;
 

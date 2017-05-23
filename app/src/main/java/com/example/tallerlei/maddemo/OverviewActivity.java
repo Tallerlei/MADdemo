@@ -1,8 +1,9 @@
 package com.example.tallerlei.maddemo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.provider.ContactsContract;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -11,28 +12,35 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.tallerlei.maddemo.model.DataItem;
+import com.example.tallerlei.maddemo.model.IDataItemCRUDOperations;
+import com.example.tallerlei.maddemo.model.SimpleDataItemCRUDOperationsImpl;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.example.tallerlei.maddemo.DetailviewActivity.DATA_ITEM;
 
-public class OverviewActivity extends AppCompatActivity implements View.OnClickListener{
+public class OverviewActivity extends AppCompatActivity implements View.OnClickListener {
 
     protected static String logger = OverviewActivity.class.getSimpleName();
+
+    private ProgressDialog progressDialog;
 
     private TextView helloText;
     private ViewGroup listView;
     private FloatingActionButton addItemButton;
     private ArrayAdapter<DataItem> listViewAdapter;
 
-    private List<DataItem> items = Arrays.asList(new DataItem[]{new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"),new DataItem("vogel"), new DataItem("awesome")});
+//    private List<DataItem> items = Arrays.asList(new DataItem[]{new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"), new DataItem("vogel"), new DataItem("awesome")});
+
+    private IDataItemCRUDOperations crudOperations;
 
     private class ItemViewHolder {
+
         public TextView itemNameView;
     }
 
@@ -44,10 +52,12 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
 
         // 2. read out elements from the view
         helloText = (TextView) findViewById(R.id.helloText);
-        Log.i(logger,  "helloText: " + helloText);
+        Log.i(logger, "helloText: " + helloText);
         listView = (ViewGroup) findViewById(R.id.ListView);
-        Log.i(logger,  "listView: " + listView);
+        Log.i(logger, "listView: " + listView);
         addItemButton = (FloatingActionButton) findViewById(R.id.addItemButton);
+
+        progressDialog = new ProgressDialog(this);
 
         // 3. set content on the elements
         setTitle(R.string.title_overview);
@@ -55,7 +65,6 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
 
         // 4. set listeners to allow user interaction
         helloText.setOnClickListener(this);
-
 
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,20 +74,19 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
         });
 
         // instantiate listview with adapter
-        listViewAdapter = new ArrayAdapter<DataItem>(this, R.layout.itemview_overview){
+        listViewAdapter = new ArrayAdapter<DataItem>(this, R.layout.itemview_overview) {
             @NonNull
             @Override
             public View getView(int position, View itemView, ViewGroup parent) {
 
-                if(itemView != null) {
+                if (itemView != null) {
                     Log.i(logger, "reusing existing itemView for element at position: " + position);
-                }
-                else {
+                } else {
                     Log.i(logger, "creating new itemView for element at position: " + position);
                     // create a new instance of list item view
                     itemView = getLayoutInflater().inflate(R.layout.itemview_overview, null);
                     // read out the text view for item name
-                    TextView itemNameView = (TextView)itemView.findViewById(R.id.itemName);
+                    TextView itemNameView = (TextView) itemView.findViewById(R.id.itemName);
                     // create a new instance of the view holder
                     ItemViewHolder itemViewHolder = new ItemViewHolder();
                     // set the itemNameView attribute on view holder to text view
@@ -87,7 +95,7 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
                     itemView.setTag(itemViewHolder);
                 }
 
-                ItemViewHolder viewHolder = (ItemViewHolder)itemView.getTag();
+                ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
 
                 DataItem item = getItem(position);
 //                Log.i(logger, "creating view for position " + position + " and item: " + item);
@@ -97,38 +105,67 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
                 return itemView;
             }
         };
-        ((ListView)listView).setAdapter(listViewAdapter);
+        ((ListView) listView).setAdapter(listViewAdapter);
         listViewAdapter.setNotifyOnChange(true);
+
+        crudOperations = new SimpleDataItemCRUDOperationsImpl();
 
         readItemsAndFillListView();
     }
 
     private void readItemsAndFillListView() {
-        for(DataItem item : items) {
+
+        List<DataItem> items = crudOperations.readAllDataItem();
+
+        for (DataItem item : items) {
             addItemToListView(item);
         }
     }
 
-    private void addItemToListView(DataItem item) {
+    public void createAndShowItem(/*final*/ DataItem item) {
 
-        listViewAdapter.add(item);
+        progressDialog.show();
 
-
-//        View listItemView = getLayoutInflater().inflate(R.layout.itemview_overview, null);
-//        TextView itemNameView = (TextView) listItemView.findViewById(R.id.itemName);
-//
-//        listItemView.setTag(item);
-//        itemNameView.setText(item.getName());
-//
-//        listItemView.setOnClickListener(new View.OnClickListener(){
+//        new Thread(new Runnable() {
 //            @Override
-//            public void onClick(View v) {
-//                DataItem item = (DataItem) v.getTag();
-//                showDetailviewForItem(item);
+//            public void run() {
+//                DataItem createdItem = crudOperations.createDataItem(item);
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        addItemToListView(item);
+//                        progressDialog.hide();
+//                    }
+//                });
 //            }
-//        });
-//        listView.addView(listItemView);
+//        }).start();
 
+        new AsyncTask<DataItem, Void, DataItem>() {
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.show();
+            }
+
+            @Override
+            protected DataItem doInBackground(DataItem... params) {
+                DataItem createdItem = crudOperations.createDataItem(params[0]);
+                return createdItem;
+            }
+
+            @Override
+            protected void onPostExecute(DataItem dataItem) {
+                addItemToListView(dataItem);
+                progressDialog.hide();
+            }
+
+        }.execute(item);
+
+
+    }
+
+    private void addItemToListView(DataItem item) {
+        listViewAdapter.add(item);
     }
 
     private void showDetailviewForItem(DataItem item) {
@@ -145,14 +182,14 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
     private void addNewItem() {
         Intent addNewItemIntent = new Intent(this, DetailviewActivity.class);
 
-        startActivityForResult(addNewItemIntent,1);
+        startActivityForResult(addNewItemIntent, 1);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == 1 && resultCode == Activity.RESULT_OK) {
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             DataItem item = (DataItem) data.getSerializableExtra(DATA_ITEM);
-            addItemToListView(item);
+            createAndShowItem(item);
         }
     }
 
@@ -160,11 +197,14 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         if (v == helloText) {
             Log.i(logger, "onClick(): " + v);
-        }
-        else {
+        } else {
             Log.i(logger, "onClick() on unknown element: " + v);
         }
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        progressDialog.dismiss();
+    }
 }

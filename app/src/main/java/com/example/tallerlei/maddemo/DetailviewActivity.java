@@ -9,6 +9,9 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
+
+import com.example.tallerlei.maddemo.model.DataItem;
+
 /**
  * Created by Matthias on 02.05.2017.
  */
