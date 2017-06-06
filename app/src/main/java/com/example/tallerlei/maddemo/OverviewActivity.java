@@ -11,12 +11,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.tallerlei.maddemo.model.DataItem;
 import com.example.tallerlei.maddemo.model.IDataItemCRUDOperations;
+import com.example.tallerlei.maddemo.model.LocalDataItemCRUDOperations;
 import com.example.tallerlei.maddemo.model.SimpleDataItemCRUDOperationsImpl;
 
 import java.util.Arrays;
@@ -108,23 +110,52 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
         ((ListView) listView).setAdapter(listViewAdapter);
         listViewAdapter.setNotifyOnChange(true);
 
-        crudOperations = new SimpleDataItemCRUDOperationsImpl();
+        ((ListView) listView).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                DataItem selectedItem = listViewAdapter.getItem(position);
+                showDetailviewForItem(selectedItem);
+            }
+        });
+
+        crudOperations = new /*SimpleDataItemCRUDOperationsImpl();*/ LocalDataItemCRUDOperations(this);
 
         readItemsAndFillListView();
     }
 
     private void readItemsAndFillListView() {
 
-        List<DataItem> items = crudOperations.readAllDataItem();
+//        List<DataItem> items = crudOperations.readAllDataItem();
+//
+//        for (DataItem item : items) {
+//            addItemToListView(item);
+//        }
 
-        for (DataItem item : items) {
-            addItemToListView(item);
-        }
+        new AsyncTask<Void, Void, List<DataItem>>() {
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.show();
+            }
+
+            @Override
+            protected List<DataItem> doInBackground(Void... params) {
+                return crudOperations.readAllDataItems();
+            }
+
+            @Override
+            protected void onPostExecute(List<DataItem> dataItems) {
+                progressDialog.hide();
+                for (DataItem item : dataItems) {
+                    addItemToListView(item);
+                }
+            }
+        }.execute();
     }
 
     public void createAndShowItem(/*final*/ DataItem item) {
 
-        progressDialog.show();
+//        progressDialog.show();
 
 //        new Thread(new Runnable() {
 //            @Override

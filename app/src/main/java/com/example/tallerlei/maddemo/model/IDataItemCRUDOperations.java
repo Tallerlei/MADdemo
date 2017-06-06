@@ -12,7 +12,7 @@ public interface IDataItemCRUDOperations {
     public DataItem createDataItem(DataItem item);
 
     // R read all items
-    public List<DataItem> readAllDataItem();
+    public List<DataItem> readAllDataItems();
 
     // R read item with id
     public DataItem readDataItem(long id);

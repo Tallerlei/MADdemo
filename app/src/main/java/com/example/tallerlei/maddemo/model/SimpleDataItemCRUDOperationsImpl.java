@@ -21,7 +21,7 @@ public class SimpleDataItemCRUDOperationsImpl implements IDataItemCRUDOperations
     }
 
     @Override
-    public List<DataItem> readAllDataItem() {
+    public List<DataItem> readAllDataItems() {
         return Arrays.asList(new DataItem[]{new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"), new DataItem("vogel"), new DataItem("awesome")});
     }
 

@@ -10,6 +10,7 @@ public class DataItem implements Serializable{
 
     private String name;
     private long duedate;
+    private long id;
 
     public DataItem() {
     }
@@ -39,6 +40,15 @@ public class DataItem implements Serializable{
         return "DataItem{" +
                 "name='" + name + '\'' +
                 ", duedate=" + duedate +
+                ", id=" + id +
                 '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
