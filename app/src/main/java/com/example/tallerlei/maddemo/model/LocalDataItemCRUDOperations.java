@@ -14,6 +14,7 @@ import java.util.List;
 
 public class LocalDataItemCRUDOperations implements IDataItemCRUDOperations {
 
+    public static final String DATAITEMS = "DATAITEMS";
     protected static String logger = LocalDataItemCRUDOperations.class.getSimpleName();
 
     private SQLiteDatabase db;
@@ -23,7 +24,7 @@ public class LocalDataItemCRUDOperations implements IDataItemCRUDOperations {
         db = context.openOrCreateDatabase("mydb.sqlite", Context.MODE_PRIVATE, null);
         if (db.getVersion() == 0) {
             db.setVersion(1);
-            db.execSQL("CREATE TABLE DATAITEMS (ID INTEGER PRIMARY KEY, NAME TEXT, DUEDATE INTEGER)");
+            db.execSQL("CREATE TABLE " + DATAITEMS + " (ID INTEGER PRIMARY KEY, NAME TEXT, DUEDATE INTEGER)");
         }
     }
 
@@ -34,7 +35,7 @@ public class LocalDataItemCRUDOperations implements IDataItemCRUDOperations {
         values.put("NAME", item.getName());
         values.put("DUEDATE", item.getDuedate());
 
-        long id = db.insert("DATAITEMS", null, values);
+        long id = db.insert(DATAITEMS, null, values);
         item.setId(id);
 
         return item;
@@ -45,7 +46,7 @@ public class LocalDataItemCRUDOperations implements IDataItemCRUDOperations {
 
         List<DataItem> items = new ArrayList<DataItem>();
 
-        Cursor cursor = db.query("DATAITEMS", new String[]{"ID", "NAME", "DUEDATE"}, null, null, null, null, "ID");
+        Cursor cursor = db.query(DATAITEMS, new String[]{"ID", "NAME", "DUEDATE"}, null, null, null, null, "ID");
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             boolean next = false;
@@ -81,6 +82,12 @@ public class LocalDataItemCRUDOperations implements IDataItemCRUDOperations {
 
     @Override
     public boolean deleteDataItem(long id) {
+
+        int numOfRows = db.delete(DATAITEMS, "ID=?", new String[]{String.valueOf(id)});
+
+        if(numOfRows > 0 ) {
+            return true;
+        }
         return false;
     }
 }

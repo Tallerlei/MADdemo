@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +29,8 @@ import static com.example.tallerlei.maddemo.DetailviewActivity.DATA_ITEM;
 
 public class OverviewActivity extends AppCompatActivity implements View.OnClickListener {
 
+    public static final int EDIT_ITEM = 2;
+    public static final int CREATE_ITEM = 1;
     protected static String logger = OverviewActivity.class.getSimpleName();
 
     private ProgressDialog progressDialog;
@@ -207,21 +210,49 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
         detailViewIntent.putExtra(DATA_ITEM, item);
 
         // Android öffnet detailviewActivity
-        startActivity(detailViewIntent);
+        startActivityForResult(detailViewIntent, EDIT_ITEM);
+
+        
     }
 
     private void addNewItem() {
         Intent addNewItemIntent = new Intent(this, DetailviewActivity.class);
 
-        startActivityForResult(addNewItemIntent, 1);
+        startActivityForResult(addNewItemIntent, CREATE_ITEM);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+        if (requestCode == CREATE_ITEM && resultCode == Activity.RESULT_OK) {
             DataItem item = (DataItem) data.getSerializableExtra(DATA_ITEM);
             createAndShowItem(item);
         }
+        else if (requestCode == EDIT_ITEM ) {
+            if(resultCode == DetailviewActivity.RESULT_DELETE_ITEM) {
+                DataItem item = (DataItem) data.getSerializableExtra(DATA_ITEM);
+                deleteAndRemoveItem(item);
+            }
+        }
+    }
+
+    private void deleteAndRemoveItem(DataItem item) {
+        long itemId = item.getId();
+        boolean deleted = crudOperations.deleteDataItem(itemId);
+        if(deleted) {
+            listViewAdapter.remove(findDataItemInList(itemId));
+        }
+    }
+
+    private DataItem findDataItemInList(long id) {
+        for(int i = 0; i < listViewAdapter.getCount(); i++) {
+            if(listViewAdapter.getItem(i).getId() == id) {
+                return listViewAdapter.getItem(i);
+            }
+        }
+
+        return null;
+
     }
 
     @Override

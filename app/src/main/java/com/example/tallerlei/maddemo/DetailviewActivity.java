@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 
 import com.example.tallerlei.maddemo.model.DataItem;
-
+import android.util.Log;
 /**
  * Created by Matthias on 02.05.2017.
  */
@@ -20,18 +20,28 @@ public class DetailviewActivity extends AppCompatActivity{
 
     protected static final String DATA_ITEM = "dataItem";
 
+    public static final int RESULT_DELETE_ITEM = 10;
+
     private TextView itemNameText;
     private Button saveItemButton;
+
+    private DataItem item;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // select layout
         setContentView(R.layout.activity_detailview);
-        setTitle(R.string.title_Detailview);
+
+        // read out UI elements
         itemNameText = (TextView) findViewById(R.id.itemNameText);
         saveItemButton = (Button) findViewById(R.id.saveItem);
+
+        // set content on UI elements
+        setTitle(R.string.title_Detailview);
         // getExtra Parameter from other Activity
-        DataItem item = (DataItem) getIntent().getSerializableExtra(DATA_ITEM);
+        item = (DataItem) getIntent().getSerializableExtra(DATA_ITEM);
+
         if(item != null) {
             itemNameText.setText(item.getName());
         }
@@ -53,6 +63,15 @@ public class DetailviewActivity extends AppCompatActivity{
         finish();
     }
 
+    private void deleteItem() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(DATA_ITEM, item);
+
+        setResult(RESULT_DELETE_ITEM,returnIntent);
+        Log.i("DetailviewActivity", "finiscihng");
+        finish();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -68,7 +87,9 @@ public class DetailviewActivity extends AppCompatActivity{
             return true;
         }
         else if (item.getItemId() == R.id.deleteItem) {
+
             // delete functionality
+            deleteItem();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
