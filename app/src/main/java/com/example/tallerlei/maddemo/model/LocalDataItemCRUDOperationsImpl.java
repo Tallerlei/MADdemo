@@ -12,14 +12,14 @@ import java.util.List;
  * Created by Matthias on 06.06.2017.
  */
 
-public class LocalDataItemCRUDOperations implements IDataItemCRUDOperations {
+public class LocalDataItemCRUDOperationsImpl implements IDataItemCRUDOperations {
 
     public static final String DATAITEMS = "DATAITEMS";
-    protected static String logger = LocalDataItemCRUDOperations.class.getSimpleName();
+    protected static String logger = LocalDataItemCRUDOperationsImpl.class.getSimpleName();
 
     private SQLiteDatabase db;
 
-    public LocalDataItemCRUDOperations(Context context) {
+    public LocalDataItemCRUDOperationsImpl(Context context) {
 
         db = context.openOrCreateDatabase("mydb.sqlite", Context.MODE_PRIVATE, null);
         if (db.getVersion() == 0) {

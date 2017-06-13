@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -19,10 +18,9 @@ import android.widget.TextView;
 
 import com.example.tallerlei.maddemo.model.DataItem;
 import com.example.tallerlei.maddemo.model.IDataItemCRUDOperations;
-import com.example.tallerlei.maddemo.model.LocalDataItemCRUDOperations;
-import com.example.tallerlei.maddemo.model.SimpleDataItemCRUDOperationsImpl;
+import com.example.tallerlei.maddemo.model.LocalDataItemCRUDOperationsImpl;
+import com.example.tallerlei.maddemo.model.RemoteDataItemCRUDOperationsImpl;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.example.tallerlei.maddemo.DetailviewActivity.DATA_ITEM;
@@ -121,7 +119,7 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-        crudOperations = new /*SimpleDataItemCRUDOperationsImpl();*/ LocalDataItemCRUDOperations(this);
+        crudOperations = new /*SimpleDataItemCRUDOperationsImpl();*/ /*LocalDataItemCRUDOperationsImpl(this);*/ RemoteDataItemCRUDOperationsImpl();
 
         readItemsAndFillListView();
     }

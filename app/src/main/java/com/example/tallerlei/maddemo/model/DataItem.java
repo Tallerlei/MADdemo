@@ -1,14 +1,17 @@
 package com.example.tallerlei.maddemo.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
  * Created by Matthias on 08.05.2017.
  */
 
-public class DataItem implements Serializable{
+public class DataItem implements Serializable {
 
     private String name;
+    @SerializedName("expiry")
     private long duedate;
     private long id;
 
