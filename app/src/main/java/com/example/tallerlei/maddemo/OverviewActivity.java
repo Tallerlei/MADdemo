@@ -17,7 +17,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.tallerlei.maddemo.model.DataItem;
-import com.example.tallerlei.maddemo.model.IDataItemCRUDOperations;
+//import com.example.tallerlei.maddemo.model.IDataItemCRUDOperations;
+import com.example.tallerlei.maddemo.model.IDataItemCRUDOperationsAsync;
+
 import com.example.tallerlei.maddemo.model.LocalDataItemCRUDOperationsImpl;
 import com.example.tallerlei.maddemo.model.RemoteDataItemCRUDOperationsImpl;
 
@@ -40,7 +42,7 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
 
 //    private List<DataItem> items = Arrays.asList(new DataItem[]{new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"), new DataItem("vogel"), new DataItem("awesome")});
 
-    private IDataItemCRUDOperations crudOperations;
+    private /*IDataItemCRUDOperations*/ IDataItemCRUDOperationsAsync crudOperations;
 
     private class ItemViewHolder {
 
@@ -119,81 +121,37 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-        crudOperations = new /*SimpleDataItemCRUDOperationsImpl();*/ /*LocalDataItemCRUDOperationsImpl(this);*/ RemoteDataItemCRUDOperationsImpl();
+        crudOperations = ((DataItemApplication)getApplication()).getCRUDOperationsImpl() /*SimpleDataItemCRUDOperationsImpl();*/ /*LocalDataItemCRUDOperationsImpl(this);*/ /*RemoteDataItemCRUDOperationsImpl()*/;
 
         readItemsAndFillListView();
     }
 
     private void readItemsAndFillListView() {
 
-//        List<DataItem> items = crudOperations.readAllDataItem();
-//
-//        for (DataItem item : items) {
-//            addItemToListView(item);
-//        }
+        progressDialog.show();
 
-        new AsyncTask<Void, Void, List<DataItem>>() {
-
+        crudOperations.readAllDataItems(new IDataItemCRUDOperationsAsync.CallbackFunction<List<DataItem>>() {
             @Override
-            protected void onPreExecute() {
-                progressDialog.show();
-            }
-
-            @Override
-            protected List<DataItem> doInBackground(Void... params) {
-                return crudOperations.readAllDataItems();
-            }
-
-            @Override
-            protected void onPostExecute(List<DataItem> dataItems) {
+            public void process(List<DataItem> result) {
                 progressDialog.hide();
-                for (DataItem item : dataItems) {
+                for (DataItem item : result) {
                     addItemToListView(item);
                 }
             }
-        }.execute();
+        });
     }
 
     public void createAndShowItem(/*final*/ DataItem item) {
 
-//        progressDialog.show();
+        progressDialog.show();
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                DataItem createdItem = crudOperations.createDataItem(item);
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        addItemToListView(item);
-//                        progressDialog.hide();
-//                    }
-//                });
-//            }
-//        }).start();
-
-        new AsyncTask<DataItem, Void, DataItem>() {
-
+        crudOperations.createDataItem(item, new IDataItemCRUDOperationsAsync.CallbackFunction<DataItem>(){
             @Override
-            protected void onPreExecute() {
-                progressDialog.show();
-            }
-
-            @Override
-            protected DataItem doInBackground(DataItem... params) {
-                DataItem createdItem = crudOperations.createDataItem(params[0]);
-                return createdItem;
-            }
-
-            @Override
-            protected void onPostExecute(DataItem dataItem) {
-                addItemToListView(dataItem);
+            public void process(DataItem result) {
+                addItemToListView(result);
                 progressDialog.hide();
             }
-
-        }.execute(item);
-
-
+        });
     }
 
     private void addItemToListView(DataItem item) {
@@ -210,7 +168,7 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
         // Android öffnet detailviewActivity
         startActivityForResult(detailViewIntent, EDIT_ITEM);
 
-        
+
     }
 
     private void addNewItem() {
@@ -225,26 +183,30 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
         if (requestCode == CREATE_ITEM && resultCode == Activity.RESULT_OK) {
             DataItem item = (DataItem) data.getSerializableExtra(DATA_ITEM);
             createAndShowItem(item);
-        }
-        else if (requestCode == EDIT_ITEM ) {
-            if(resultCode == DetailviewActivity.RESULT_DELETE_ITEM) {
+        } else if (requestCode == EDIT_ITEM) {
+            if (resultCode == DetailviewActivity.RESULT_DELETE_ITEM) {
                 DataItem item = (DataItem) data.getSerializableExtra(DATA_ITEM);
                 deleteAndRemoveItem(item);
             }
         }
     }
 
-    private void deleteAndRemoveItem(DataItem item) {
-        long itemId = item.getId();
-        boolean deleted = crudOperations.deleteDataItem(itemId);
-        if(deleted) {
-            listViewAdapter.remove(findDataItemInList(itemId));
-        }
+    private void deleteAndRemoveItem(final DataItem item) {
+
+        crudOperations.deleteDataItem(item.getId(), new IDataItemCRUDOperationsAsync.CallbackFunction<Boolean>() {
+            @Override
+            public void process(Boolean deleted) {
+                if (deleted) {
+                    listViewAdapter.remove(findDataItemInList(item.getId()));
+                }
+            }
+
+        });
     }
 
     private DataItem findDataItemInList(long id) {
-        for(int i = 0; i < listViewAdapter.getCount(); i++) {
-            if(listViewAdapter.getItem(i).getId() == id) {
+        for (int i = 0; i < listViewAdapter.getCount(); i++) {
+            if (listViewAdapter.getItem(i).getId() == id) {
                 return listViewAdapter.getItem(i);
             }
         }

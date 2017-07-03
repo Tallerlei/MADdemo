@@ -68,7 +68,7 @@ public class DetailviewActivity extends AppCompatActivity{
         returnIntent.putExtra(DATA_ITEM, item);
 
         setResult(RESULT_DELETE_ITEM,returnIntent);
-        Log.i("DetailviewActivity", "finiscihng");
+        Log.i("DetailviewActivity", "finishing");
         finish();
     }
 
