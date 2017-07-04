@@ -10,7 +10,9 @@ import com.example.tallerlei.maddemo.model.IDataItemCRUDOperationsAsync;
 import com.example.tallerlei.maddemo.model.LocalDataItemCRUDOperationsImpl;
 import com.example.tallerlei.maddemo.model.RemoteDataItemCRUDOperationsImpl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Matthias Tallarek on 03.07.2017.
@@ -21,6 +23,8 @@ public class DataItemApplication extends Application implements IDataItemCRUDOpe
     private static String logger = DataItemApplication.class.getSimpleName();
 
     private IDataItemCRUDOperations syncCrudOperations;
+
+    private Map<Long, DataItem> dataItemMap = new HashMap<Long, DataItem>();
 
     @Override
     public void onCreate() {

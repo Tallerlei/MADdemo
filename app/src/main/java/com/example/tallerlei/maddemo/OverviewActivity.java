@@ -9,6 +9,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,6 +25,9 @@ import com.example.tallerlei.maddemo.model.IDataItemCRUDOperationsAsync;
 import com.example.tallerlei.maddemo.model.LocalDataItemCRUDOperationsImpl;
 import com.example.tallerlei.maddemo.model.RemoteDataItemCRUDOperationsImpl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.example.tallerlei.maddemo.DetailviewActivity.DATA_ITEM;
@@ -39,6 +44,7 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
     private ViewGroup listView;
     private FloatingActionButton addItemButton;
     private ArrayAdapter<DataItem> listViewAdapter;
+    private List<DataItem> itemsList = new ArrayList<DataItem>();
 
 //    private List<DataItem> items = Arrays.asList(new DataItem[]{new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"), new DataItem("vogel"), new DataItem("awesome")});
 
@@ -79,7 +85,7 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
         });
 
         // instantiate listview with adapter
-        listViewAdapter = new ArrayAdapter<DataItem>(this, R.layout.itemview_overview) {
+        listViewAdapter = new ArrayAdapter<DataItem>(this, R.layout.itemview_overview, itemsList) {
             @NonNull
             @Override
             public View getView(int position, View itemView, ViewGroup parent) {
@@ -137,6 +143,7 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
                 for (DataItem item : result) {
                     addItemToListView(item);
                 }
+                Log.i(logger, "items: " + itemsList);
             }
         });
     }
@@ -228,5 +235,32 @@ public class OverviewActivity extends AppCompatActivity implements View.OnClickL
     protected void onDestroy() {
         super.onDestroy();
         progressDialog.dismiss();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_overview, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void sortItems(){
+        Log.i(logger, "geht?: " + itemsList);
+        Collections.sort(itemsList, new Comparator<DataItem>(){
+            @Override
+            public int compare(DataItem o1, DataItem o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        this.listViewAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.sortItems) {
+            sortItems();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 }
