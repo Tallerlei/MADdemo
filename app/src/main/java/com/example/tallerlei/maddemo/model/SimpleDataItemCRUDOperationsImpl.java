@@ -22,7 +22,7 @@ public class SimpleDataItemCRUDOperationsImpl implements IDataItemCRUDOperations
 
     @Override
     public List<DataItem> readAllDataItems() {
-        return Arrays.asList(new DataItem[]{new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"), new DataItem("vogel"), new DataItem("awesome")});
+        return Arrays.asList(/*new DataItem("shit"), new DataItem("lalala"), new DataItem("nuklear"), new DataItem("blödmann"), new DataItem("hänker"), new DataItem("noche ein eintrag"), new DataItem("lorem"), new DataItem("ipsumt"), new DataItem("spasit"), new DataItem("vogel"), new DataItem("awesome")*/);
     }
 
     @Override
@@ -37,6 +37,11 @@ public class SimpleDataItemCRUDOperationsImpl implements IDataItemCRUDOperations
 
     @Override
     public boolean deleteDataItem(long id) {
+        return false;
+    }
+
+    @Override
+    public boolean deleteAllDataItems() {
         return false;
     }
 }

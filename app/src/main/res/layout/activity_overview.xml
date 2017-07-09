@@ -16,13 +16,6 @@
         android:layout_below="@+id/helloText"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <!--<LinearLayout-->
-            <!--android:id="@+id/ListView"-->
-            <!--android:orientation="vertical"-->
-
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent">-->
-        <!--</LinearLayout>-->
     </ScrollView>
     <ListView
         android:id="@+id/ListView"

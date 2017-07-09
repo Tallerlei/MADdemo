@@ -1,5 +1,7 @@
 package com.example.tallerlei.maddemo.model;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -11,15 +13,22 @@ import java.io.Serializable;
 public class DataItem implements Serializable {
 
     private String name;
+    private String description;
     @SerializedName("expiry")
-    private long duedate;
+    private long dueDate;
     private long id;
+    private boolean done = false;
+    private boolean favourite = false;
 
     public DataItem() {
     }
 
-    public DataItem(String name) {
+    public DataItem(String name, String description, long dueDate, boolean done, boolean favourite) {
         this.name = name;
+        this.description = description;
+        this.dueDate = dueDate;
+        this.done = done;
+        this.favourite = favourite;
     }
 
     public String getName() {
@@ -30,21 +39,36 @@ public class DataItem implements Serializable {
         this.name = name;
     }
 
-    public long getDuedate() {
-        return duedate;
+    public long getDueDate() {
+        return dueDate;
     }
 
-    public void setDuedate(long duedate) {
-        this.duedate = duedate;
+    public void setDueDate(long dueDate) {
+        this.dueDate = dueDate;
     }
 
-    @Override
-    public String toString() {
-        return "DataItem{" +
-                "name='" + name + '\'' +
-                ", duedate=" + duedate +
-                ", id=" + id +
-                '}';
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public long getId() {
@@ -53,5 +77,17 @@ public class DataItem implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "DataItem{" +
+                "name='" + name + '\'' +
+                ", description=" + description +
+                ", duedate=" + dueDate +
+                ", id=" + id +
+                ", done=" + done +
+                ", favourite=" + favourite +
+                "}";
     }
 }

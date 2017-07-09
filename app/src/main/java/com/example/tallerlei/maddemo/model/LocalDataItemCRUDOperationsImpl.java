@@ -21,10 +21,10 @@ public class LocalDataItemCRUDOperationsImpl implements IDataItemCRUDOperations 
 
     public LocalDataItemCRUDOperationsImpl(Context context) {
 
-        db = context.openOrCreateDatabase("mydb.sqlite", Context.MODE_PRIVATE, null);
+        db = context.openOrCreateDatabase("mydb7.sqlite", Context.MODE_PRIVATE, null);
         if (db.getVersion() == 0) {
             db.setVersion(1);
-            db.execSQL("CREATE TABLE " + DATAITEMS + " (ID INTEGER PRIMARY KEY, NAME TEXT, DUEDATE INTEGER)");
+            db.execSQL("CREATE TABLE " + DATAITEMS + " (ID INTEGER PRIMARY KEY, NAME TEXT, DESCRIPTION TEXT, DUEDATE INTEGER, DONE INTEGER, FAVOURITE INTEGER)");
         }
     }
 
@@ -33,8 +33,19 @@ public class LocalDataItemCRUDOperationsImpl implements IDataItemCRUDOperations 
 
         ContentValues values = new ContentValues();
         values.put("NAME", item.getName());
-        values.put("DUEDATE", item.getDuedate());
+        values.put("DESCRIPTION", item.getDescription());
+        values.put("DUEDATE", item.getDueDate());
 
+        if(item.isDone() == true) {
+            values.put("DONE", 1);
+        } else {
+            values.put("DONE", 0);
+        }
+        if(item.isFavourite() == true) {
+            values.put("FAVOURITE", 1);
+        } else {
+            values.put("FAVOURITE", 0);
+        }
         long id = db.insert(DATAITEMS, null, values);
         item.setId(id);
 
@@ -46,7 +57,7 @@ public class LocalDataItemCRUDOperationsImpl implements IDataItemCRUDOperations 
 
         List<DataItem> items = new ArrayList<DataItem>();
 
-        Cursor cursor = db.query(DATAITEMS, new String[]{"ID", "NAME", "DUEDATE"}, null, null, null, null, "ID");
+        Cursor cursor = db.query(DATAITEMS, new String[]{"ID", "NAME", "DESCRIPTION", "DUEDATE", "DONE", "FAVOURITE"}, null, null, null, null, "ID");
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             boolean next = false;
@@ -55,11 +66,24 @@ public class LocalDataItemCRUDOperationsImpl implements IDataItemCRUDOperations 
                 items.add(item);
                 long id = cursor.getLong(cursor.getColumnIndex("ID"));
                 String name = cursor.getString(cursor.getColumnIndex("NAME"));
+                String description = cursor.getString(cursor.getColumnIndex("DESCRIPTION"));
                 long dueDate = cursor.getLong(cursor.getColumnIndex("DUEDATE"));
 
+                Boolean done = false;
+                if(cursor.getInt(cursor.getColumnIndex("FAVOURITE")) == 1) {
+                    done = true;
+                }
+                Boolean favourite = false;
+                if(cursor.getInt(cursor.getColumnIndex("FAVOURITE")) == 1) {
+                    favourite = true;
+                }
                 item.setId(id);
                 item.setName(name);
-                item.setDuedate(dueDate);
+                item.setDescription(description);
+                item.setDueDate(dueDate);
+
+                item.setDone(done);
+                item.setFavourite(favourite);
 
 
                 next = cursor.moveToNext();
@@ -77,7 +101,22 @@ public class LocalDataItemCRUDOperationsImpl implements IDataItemCRUDOperations 
 
     @Override
     public DataItem updateDataItem(long id, DataItem item) {
-        return null;
+        ContentValues cv = new ContentValues();
+        cv.put("NAME",item.getName());
+        cv.put("DESCRIPTION", item.getDescription());
+        cv.put("DUEDATE", item.getDueDate());
+        if(item.isDone()==true) {
+            cv.put("DONE", 1);
+        } else {
+            cv.put("DONE", 0);
+        }
+        if(item.isFavourite()==true) {
+            cv.put("FAVOURITE", 1);
+        } else {
+            cv.put("FAVOURITE", 0);
+        }
+        db.update(DATAITEMS, cv, "ID=?", new String[]{String.valueOf(id)});
+        return item;
     }
 
     @Override
@@ -85,9 +124,11 @@ public class LocalDataItemCRUDOperationsImpl implements IDataItemCRUDOperations 
 
         int numOfRows = db.delete(DATAITEMS, "ID=?", new String[]{String.valueOf(id)});
 
-        if(numOfRows > 0 ) {
-            return true;
-        }
+        return numOfRows > 0;
+    }
+
+    @Override
+    public boolean deleteAllDataItems() {
         return false;
     }
 }

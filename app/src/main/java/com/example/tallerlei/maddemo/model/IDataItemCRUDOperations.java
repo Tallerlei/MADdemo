@@ -9,18 +9,21 @@ import java.util.List;
 public interface IDataItemCRUDOperations {
 
     // C create
-    public DataItem createDataItem(DataItem item);
+    DataItem createDataItem(DataItem item);
 
     // R read all items
-    public List<DataItem> readAllDataItems();
+    List<DataItem> readAllDataItems();
 
     // R read item with id
-    public DataItem readDataItem(long id);
+    DataItem readDataItem(long id);
 
     // U update item with id
-    public DataItem updateDataItem(long id, DataItem item);
+    DataItem updateDataItem(long id, DataItem item);
 
-    // D delte item with id
-    public boolean deleteDataItem(long id);
+    // D delete item with id
+    boolean deleteDataItem(long id);
+
+    // D delete item with id
+    boolean deleteAllDataItems();
 
 }

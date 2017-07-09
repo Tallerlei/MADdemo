@@ -1,5 +1,7 @@
 package com.example.tallerlei.maddemo.model;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -22,20 +24,22 @@ public class RemoteDataItemCRUDOperationsImpl implements IDataItemCRUDOperations
     public interface IDataItemCRUDWepAPI {
 
         @POST("/api/todos")
-        public Call<DataItem> createDataItem(@Body DataItem item);
+        Call<DataItem> createDataItem(@Body DataItem item);
 
         @GET("/api/todos")
-        public Call <List<DataItem>> readAllDataItems();
+        Call<List<DataItem>> readAllDataItems();
 
         @GET("/api/todos/{id}")
-        public Call <DataItem> readDataItem(@Path("id") long id);
+        Call<DataItem> readDataItem(@Path("id") long id);
 
         @PUT("/api/todos/{id}")
-        public Call<DataItem> updateDataItem(@Path("id") long id, @Body DataItem item);
+        Call<DataItem> updateDataItem(@Path("id") long id, @Body DataItem item);
 
         @DELETE("/api/todos/{id}")
-        public Call<Boolean> deleteDataItem(@Path("id") long id);
+        Call<Boolean> deleteDataItem(@Path("id") long id);
 
+        @DELETE("/api/todos")
+        Call<Boolean> deleteAllDataItems();
     }
 
     private IDataItemCRUDWepAPI webAPI;
@@ -77,7 +81,12 @@ public class RemoteDataItemCRUDOperationsImpl implements IDataItemCRUDOperations
 
     @Override
     public DataItem updateDataItem(long id, DataItem item) {
-        return null;
+        try {
+            this.webAPI.updateDataItem(id, item).execute().body();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return item;
     }
 
     @Override
@@ -88,7 +97,15 @@ public class RemoteDataItemCRUDOperationsImpl implements IDataItemCRUDOperations
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
 
-
+    @Override
+    public boolean deleteAllDataItems() {
+        try {
+            return this.webAPI.deleteAllDataItems().execute().body();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 }
